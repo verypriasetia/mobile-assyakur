@@ -1,5 +1,5 @@
 /* ==========================================================================
-   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.8 (RESTORED 1 BARIS KAS)
+   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.9 (CROSS-REPOSITORY UTUH)
    ========================================================================== */
 
 /* ==========================================================================
@@ -113,7 +113,7 @@ let menggunakanSlideA = true;
 
 setInterval(() => {
     const sekarang = new Date();
-    const jam = agora = sekarang.getHours();     
+    const jam = sekarang.getHours();     
     const menit = sekarang.getMinutes(); 
     const detik = sekarang.getSeconds(); 
     const sekarangDetik = (jam * 3600) + (menit * 60) + detik;
@@ -194,7 +194,7 @@ setInterval(() => {
         if (sekarangDetik >= adzanDetik && sekarangDetik < adzanDetik + batasIqamahDetik) {
             iqamahAktif = {
                 nama: daftarSholat[i].nama,
-                sisaDetik: (adzanDetik + batasIqamahDetik) - sekarangDetik
+                sisaDetik: (adzanDetik + batasIqamahDetik) - ThermalSekarangDetik = sekarangDetik
             };
             break;
         }
@@ -408,9 +408,6 @@ function bangunStrukturSlideAntrian() {
         `
     });
 
-    // ==========================================================================
-    // MODUL UPDATE: RESTORED 1 BARIS LURUS DENGAN FONT DIOPTIMALKAN AGAR MUAT
-    // ==========================================================================
     dataSlides.push({
         tipe: 'SALDO_JUMAT',
         durasi: 15000,
@@ -472,14 +469,20 @@ function bangunStrukturSlideAntrian() {
     inisialisasiPerputaranPapan();
 }
 
+// ==========================================================================
+// CARA 1 MODUL: AMBIL GAMBAR DARI URL ABSOLUT GITHUB PAGES REPO TV SEBELUMNYA
+// ==========================================================================
 function tambahkanItemGambarDinamis() {
     if (DAFTAR_GAMBAR_LOKAL.length === 0) return;
     const namaFileGambar = DAFTAR_GAMBAR_LOKAL[globalImageIndex % DAFTAR_GAMBAR_LOKAL.length];
     
+    // UBAH "USERNAME_GITHUB_OMVERY" & "NAMA_REPO_TV_SEBELUMNYA" DI BAWAH INI SESUAI DATA ASLI
+    const domainRepoTvSebut = "https://verypriasetia.github.io/masjid-assyakur/";
+
     dataSlides.push({
         tipe: 'IMAGE_STRETCH',
         durasi: 15000,
-        html: `<img src="image/${namaFileGambar}" class="slide-stretched-img" onerror="this.src='logo.png';">`
+        html: `<img src="${domainRepoTvSebut}/image/${namaFileGambar}" class="slide-stretched-img" onerror="this.onerror=null; this.src='logo.png';">`
     });
     globalImageIndex++;
 }
