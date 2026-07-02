@@ -1,532 +1,565 @@
-/* ==========================================================================
-   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V3.3 (TOTAL PROTECTED IIFE)
-   ========================================================================== */
-(function() {
-    // Seluruh variabel global diisolasi di dalam kapsul agar tidak menabrak file lain
-    let localIsAlarmAdzanPlay = false;
-    let localIsAlarmIqamahPlay = false;
-
-    window.ambilJadwalHariIni = function(dateObj) {
-        const tahun = dateObj.getFullYear();
-        const bulan = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const tanggal = String(dateObj.getDate()).padStart(2, '0');
-        const keyTanggal = `${tahun}-${bulan}-${tanggal}`; 
-
-        if (typeof DATABASE_JADWAL_TAHUNAN !== 'undefined' && DATABASE_JADWAL_TAHUNAN[keyTanggal]) {
-            return DATABASE_JADWAL_TAHUNAN[keyTanggal];
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mobile Display Masjid Assyakur</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           STYLE PORTRAIT - MODUL MOBILE HP (ANTI-ROTASI LANDSCAPE & FULL KONTROL)
+           ========================================================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
         }
-        return { imsak: "04:44", fajr: "04:54", dhuhr: "12:18", asr: "15:43", magrib: "18:21", isya: "19:35" };
-    };
 
-    window.pancingIzinAudioBrowser = function() {
-        console.log("Izin audio berhasil dipancing.");
-        const dummyAudio = new Audio('BEEP PENDEK.mp3');
-        dummyAudio.volume = 0; 
-        dummyAudio.play().catch(() => {});
-    };
-
-    window.putarAudioMp3 = function(fileUtama, fileSambungan = null) {
-        const audio = new Audio(`${fileUtama}`);
-        audio.play().then(() => {
-            if (fileSambungan) {
-                audio.onended = () => {
-                    const audioSambungan = new Audio(`${fileSambungan}`);
-                    audioSambungan.play().catch(e => console.error(e));
-                };
-            }
-        }).catch(e => console.error(e));
-    };
-
-    window.triggerAlarm = function(tipe) {
-        if (tipe === 'adzan') {
-            putarAudioMp3('BEEP PENDEK.mp3', 'BEEP PANJANG.mp3');
-        } else if (tipe === 'iqamah') {
-            putarAudioMp3('BEEP PENDEK.mp3');
+        body {
+            background: #010f09;
+            color: #ffffff;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            padding: 1.5vh;
         }
-    };
 
-    window.hitungHijriyahOtomatis = function(dateObj) {
-        let kustomSore = new Date(dateObj.getTime());
-        const jadwalHariIni = ambilJadwalHariIni(dateObj);
+        .signage-container-portrait {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            gap: 1.2vh;
+        }
+
+        /* 1. HEADER PORTRAIT - TINGGI 10VH */
+        .main-header-portrait {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            background: rgba(11, 48, 28, 0.95);
+            border: 0.2vh solid #e5c158;
+            border-radius: 1vh;
+            padding: 0.5vh 2.5vw;
+            height: 10vh;
+            flex-shrink: 0;
+        }
+
+        .logo-img-portrait {
+            height: 6.5vh; 
+            width: auto;
+            margin-right: 2.5vw; 
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .title-container-portrait {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .title-container-portrait h1 {
+            font-size: 2vh; 
+            color: #e5c158;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .title-container-portrait .address-inline {
+            font-size: 1.1vh; 
+            color: #a2bcae;
+            font-weight: 500;
+            line-height: 1.2;
+            margin-top: 0.1vh;
+        }
+
+        /* 2. AREA WIDGET WAKTU RATA TENGAH (Tinggi: 11vh) */
+        .time-widget-row {
+            display: flex;
+            gap: 1.5vw;
+            height: 11vh;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .card-portrait {
+            background: rgba(11, 48, 28, 0.9);
+            border: 0.2vh solid rgba(229, 193, 88, 0.4);
+            border-radius: 1vh;
+            padding: 0.5vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            flex: 1;
+            width: 50%;
+        }
+
+        .card-clock-portrait .clock-display {
+            font-size: 2.6vh;
+            font-weight: 800;
+            color: #2ecc71;
+            text-shadow: 0 0 1vh rgba(46, 204, 113, 0.3);
+            line-height: 1.1;
+        }
+
+        .card-clock-portrait .date-display {
+            font-size: 1.2vh;
+            color: #a2bcae;
+            font-weight: 600;
+        }
+
+        .card-clock-portrait .hijri-display {
+            font-size: 1.25vh;
+            color: #e5c158;
+            font-weight: 700;
+        }
+
+        .card-countdown-portrait h3 {
+            font-size: 1.2vh;
+            color: #e5c158;
+            font-weight: 700;
+        }
+
+        .card-countdown-portrait .time-main {
+            font-size: 2.6vh;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .card-countdown-portrait .time-sub {
+            font-size: 1.5vh;
+            font-weight: 700;
+            color: #ff5252;
+            border: 0.15vh solid #ff5252;
+            padding: 0.1vh 1.5vw;
+            border-radius: 0.4vh;
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        /* 3. PAPAN INFORMASI SLIDER (Tinggi: 50vh) */
+        .main-papan-portrait {
+            display: flex;
+            flex-direction: column;
+            background: rgba(6, 27, 16, 0.85);
+            border: 0.25vh solid #e5c158;
+            border-radius: 1vh 1vh 0 0;
+            height: 50vh;
+            overflow: hidden;
+        }
+
+        .papan-header-portrait {
+            background: #0b301c;
+            color: #e5c158;
+            font-size: 2vh;
+            font-weight: 700;
+            text-align: center;
+            padding: 0.8vh 0;
+            border-bottom: 0.2vh solid #e5c158;
+            letter-spacing: 0.1vh;
+        }
+
+        .papan-body-portrait {
+            flex: 1;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* PANEL NAVIGASI MANUAL DI BAWAH PAPAN */
+        .papan-control-panel {
+            display: flex;
+            background: #0b301c;
+            border: 0.25vh solid #e5c158;
+            border-top: none;
+            border-radius: 0 0 1vh 1vh;
+            height: 5vh;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .ctrl-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 1.4vh;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05vh;
+        }
+
+        .ctrl-btn:not(:last-child) {
+            border-right: 0.15vh solid rgba(229, 193, 88, 0.3);
+        }
+
+        .ctrl-btn:active { background: rgba(229, 193, 88, 0.2); }
+        .ctrl-btn.active-status { background: #ff5252; color: #ffffff; }
+
+        .slide-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 2000ms ease-in-out;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        /* 4. REKENING INFAQ (Tinggi: 9vh) */
+        .card-rekening-portrait {
+            height: 9vh;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .card-rekening-portrait h3 {
+            font-size: 1.3vh;
+            color: #e5c158;
+            margin-bottom: 0.2vh;
+        }
+
+        .rekening-box-portrait {
+            background: rgba(0, 0, 0, 0.4);
+            border: 0.15vh dashed rgba(229, 193, 88, 0.5);
+            border-radius: 0.6vh;
+            width: 100%;
+            padding: 0.5vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rekening-box-portrait .acc-number {
+            font-size: 2.4vh;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.05vh;
+            line-height: 1.1;
+        }
+
+        .rekening-box-portrait .acc-owner {
+            font-size: 1.2vh;
+            color: #e5c158;
+        }
+
+        /* 5. FOOTER RUNNING TEXT */
+        .main-footer-portrait {
+            background: rgba(6, 27, 16, 0.98);
+            border: 0.2vh solid #e5c158;
+            border-radius: 0.8vh;
+            height: 5vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        .marquee-container { width: 100%; overflow: hidden; }
+        #running-text {
+            font-size: 2vh !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            display: block !important;
+        }
+
+        /* LAYOUT INTERNAL KONTEN PAPAN */
+        .padded-slide-inner {
+            width: 100%;
+            height: 100%;
+            padding: 1.5vh 3vw;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide-stretched-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .info-text-content {
+            font-family: 'Times New Roman', Times, serif !important;
+            font-size: 2.4vh !important;
+            line-height: 1.4;
+            color: #ffffff !important;
+            text-align: left;
+            font-weight: bold;
+            white-space: pre-wrap;
+            width: 100%;
+        }
+
+        .table-responsive { width: 100%; overflow-y: auto; flex: 1; }
+        .table-kas { width: 100%; border-collapse: collapse; font-size: 1.3vh !important; }
+        .table-kas th { background: #0b301c; color: #e5c158; padding: 0.6vh 1vw; border: 0.1vh solid rgba(229, 193, 88, 0.4); font-weight: 700; }
+        .table-kas td { padding: 0.6vh 1vw; border: 0.1vh solid rgba(229, 193, 88, 0.2); }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
         
-        if (jadwalHariIni && jadwalHariIni.magrib) {
-            let partsMagrib = jadwalHariIni.magrib.split(':');
-            let jamMagrib = parseInt(partsMagrib[0], 10);
-            let menitMagrib = parseInt(partsMagrib[1], 10);
+        /* CSS SLIDE JUMAT RATA TENGAH VERTIKAL */
+        [data-tipe="TEKS_JUMAT"] .padded-slide-inner, 
+        .padded-slide-inner:has(table:not(.table-kas)) {
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important; 
+            align-items: center !important;     
+            height: 100% !important;
+            padding: 2vh 5vw !important;
+        }
+
+        [data-tipe="TEKS_JUMAT"] div:first-child,
+        .padded-slide-inner:has(table:not(.table-kas)) div:first-child {
+            font-size: 2.8vh !important; 
+            color: #e5c158 !important;
+            font-weight: 800 !important;
+            text-align: center !important;
+            white-space: nowrap !important; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100% !important;
+            margin-bottom: 0.3vh !important;
+        }
+
+        [data-tipe="TEKS_JUMAT"] div:nth-child(2),
+        .padded-slide-inner:has(table:not(.table-kas)) div:nth-child(2) {
+            font-size: 2vh !important; 
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            text-align: center !important;
+            white-space: nowrap !important; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100% !important;
+            margin-bottom: 2.5vh !important; 
+        }
+
+        [data-tipe="TEKS_JUMAT"] table,
+        .padded-slide-inner:has(table:not(.table-kas)) table {
+            font-size: 2.2vh !important;
+            width: auto !important; 
+            min-width: 85% !important;
+            max-width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 0 auto !important; 
+        }
+
+        [data-tipe="TEKS_JUMAT"] td:nth-child(1),
+        .padded-slide-inner:has(table:not(.table-kas)) td:nth-child(1) {
+            text-align: left !important;
+            font-weight: 700 !important;
+            color: #a2bcae !important;
+            padding: 0.6vh 1vw 0.6vh 0 !important;
+            white-space: nowrap !important;
+            width: 30% !important; 
+        }
+
+        [data-tipe="TEKS_JUMAT"] td:nth-child(2),
+        .padded-slide-inner:has(table:not(.table-kas)) td:nth-child(2) {
+            text-align: center !important;
+            font-weight: 700 !important;
+            color: #e5c158 !important;
+            padding: 0.6vh 1.5vw !important;
+            width: 5% !important;
+        }
+
+        [data-tipe="TEKS_JUMAT"] td:nth-child(3),
+        .padded-slide-inner:has(table:not(.table-kas)) td:nth-child(3) {
+            text-align: left !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            padding: 0.6vh 0 0.6vh 1vw !important;
+            word-wrap: break-word !important;
+        }
+
+        #sholat-standby-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 9999; }
+
+        /* ==========================================================================
+           TRIK KUNCI MATI ORIENTASI: SCREEN MASK BILA HP DIPUTAR KE LANDSCAPE
+           ========================================================================== */
+        #orientation-blocker {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #010f09;
+            z-index: 99999;
+            color: #ffffff;
+            text-align: center;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5vw;
+        }
+
+        /* Aktifkan pelindung hanya jika terdeteksi orientasi landscape di HP */
+        @media screen and (orientation: landscape) and (max-width: 950px) {
+            #orientation-blocker {
+                display: flex;
+            }
+            .signage-container-portrait {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="orientation-blocker">
+        <div style="font-size: 7vh; margin-bottom: 2vh;">📱</div>
+        <h2 style="color: #e5c158; font-size: 3vh; font-weight: 800; margin-bottom: 1vh;">MODE POTRAIT DIKUNCI</h2>
+        <p style="font-size: 2vh; color: #a2bcae; font-weight: 500;">Mohon putar kembali handphone Anda ke posisi tegak (Vertikal) untuk melihat mading digital.</p>
+    </div>
+
+    <div class="signage-container-portrait">
+        
+        <header class="main-header-portrait">
+            <img src="logo.png" alt="Logo" class="logo-img-portrait">
+            <div class="title-container-portrait">
+                <h1>MASJID ASSYAKUR</h1>
+                <div class="address-inline">Perum. Pesona Aqila Regency, Gg. Makassar RT.016, Desa Jone, Paser, Kaltim</div>
+            </div>
+        </header>
+
+        <section class="time-widget-row">
+            <div class="card-portrait card-clock-portrait">
+                <div class="clock-display" id="clock-time">00:00:00</div>
+                <div class="date-display" id="clock-date">Memuat Hari...</div>
+                <div class="hijri-display" id="clock-hijri">Memuat Hijriyah...</div>
+            </div>
             
-            let detikMagribHariIni = (jamMagrib * 3600) + (menitMagrib * 60);
-            let detikSekarang = (dateObj.getHours() * 3600) + (dateObj.getMinutes() * 60) + dateObj.getSeconds();
-            
-            if (detikSekarang >= detikMagribHariIni) {
-                kustomSore.setDate(kustomSore.getDate() + 1);
-            }
-        }
+            <div class="card-portrait card-countdown-portrait">
+                <h3 id="countdown-title">WAKTU SHOLAT</h3>
+                <div class="time-main" id="countdown-time">00:00</div>
+                <div class="time-sub" id="countdown-timer">-00:00:00</div>
+            </div>
+        </section>
 
-        let jd = Math.floor(kustomSore.getTime() / 86400000) + 2440589;
-        let l = jd - 1948440 + 10632;
-        let n = Math.floor((l - 1) / 10631);
-        l = l - 10631 * n + 354;
-        let j = Math.floor((10985 - l) / 5316) * Math.floor((50 * l) / 17719) + Math.floor(l / 5670) * Math.floor((43 * l) / 15238);
-        l = l - Math.floor((30 - j) / 15) * Math.floor((17719 * j) / 50) - Math.floor(j / 16) * Math.floor((15238 * j) / 43) + 29;
-        
-        let m = Math.floor((24 * l) / 709);
-        let d = l - Math.floor((709 * m) / 24);
-        let y = 30 * n + j - 30;
-
-        const namaBulanHijriyah = [
-            "Muharram", "Safar", "Rabi'ul Awwal", "Rabi'ul Akhir", 
-            "Jumadil Awwal", "Jumadil Akhir", "Rajab", "Sya'ban", 
-            "Ramadhan", "Syawwal", "Dzulqa'dah", "Dzulhijjah"
-        ];
-
-        return `${d} ${namaBulanHijriyah[m - 1]} ${y} H`;
-    };
-
-    window.SPREADSHEET_ID = '1Jene5qNwgCTYkPAZhlbeRIEVnZvJl6Ktze0pp1upbsk'; 
-    window.API_KEY = 'AIzaSyA8jJH40UHIUsfSmnR6vWPP0mqnN3S5QuY'; 
-
-    window.dataSlides = [];
-    window.currentSlideIndex = 0;
-    window.slideTimeout = null;
-    window.scrollInterval = null;
-
-    window.dataMasjidJeda = { SUBUH: 12, DZUHUR: 10, ASHAR: 10, MAGHRIB: 7, ISYA: 10 }; 
-    window.isModeSholatBerlangsung = false;
-    window.isModeMenungguIqamah = false;
-
-    window.DAFTAR_GAMBAR_LOKAL = [];
-
-    window.globalImageIndex = 0;      
-    window.globalTextIndex = 0;       
-    window.menggunakanSlideA = true;
-
-    setInterval(() => {
-        const sekarang = new Date();
-        const jam = sekarang.getHours();     
-        const menit = sekarang.getMinutes(); 
-        const detik = sekarang.getSeconds(); 
-        const sekarangDetik = (jam * 3600) + (menit * 60) + detik;
-        
-        if (document.getElementById('clock-time')) {
-            document.getElementById('clock-time').innerText = `${String(jam).padStart(2, '0')}:${String(menit).padStart(2, '0')}:${String(detik).padStart(2, '0')}`;
-        }
-
-        if (document.getElementById('clock-date')) {
-            document.getElementById('clock-date').innerText = sekarang.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        }
-
-        if (document.getElementById('clock-hijri')) {
-            document.getElementById('clock-hijri').innerText = hitungHijriyahOtomatis(sekarang);
-        }
-
-        const jadwalHariIni = ambilJadwalHariIni(sekarang);
-        const besok = new Date();
-        besok.setDate(sekarang.getDate() + 1);
-        const jadwalBesok = ambilJadwalHariIni(besok);
-
-        const daftarSholat = [
-            { nama: 'SUBUH', waktu: jadwalHariIni.fajr },
-            { nama: 'DZUHUR', waktu: jadwalHariIni.dhuhr },
-            { nama: 'ASHAR', waktu: jadwalHariIni.asr },
-            { nama: 'MAGHRIB', waktu: jadwalHariIni.magrib },
-            { nama: 'ISYA', waktu: jadwalHariIni.isya }
-        ];
-
-        let sholatBerikutnya = null;
-        for (let i = 0; i < daftarSholat.length; i++) {
-            let tParts = daftarSholat[i].waktu.split(':');
-            let targetDetik = (parseInt(tParts[0]) * 3600) + (parseInt(tParts[1]) * 60);
-            if (targetDetik > sekarangDetik) {
-                sholatBerikutnya = { nama: daftarSholat[i].nama, waktuStr: daftarSholat[i].waktu, targetDetik: targetDetik, isBesok: false };
-                break;
-            }
-        }
-        if (!sholatBerikutnya) {
-            let tParts = jadwalBesok.fajr.split(':');
-            sholatBerikutnya = { nama: 'SUBUH', waktuStr: jadwalBesok.fajr, targetDetik: (parseInt(tParts[0]) * 3600) + (parseInt(tParts[1]) * 60) + 86400, isBesok: true };
-        }
-
-        const elLabel = document.getElementById('countdown-title');
-        const elWaktu = document.getElementById('countdown-time');
-        const elCountdown = document.getElementById('countdown-timer');
-
-        if (elWaktu) elWaktu.innerText = sholatBerikutnya.waktuStr;
-        if (elLabel) {
-            elLabel.innerHTML = `WAKTU SHOLAT <span style="color:#e5c158;">${sholatBerikutnya.isBesok ? 'SUBUH (BESOK)' : sholatBerikutnya.nama}</span>`;
-        }
-
-        let sisaDetikMenujuAdzan = sholatBerikutnya.targetDetik - sekarangDetik;
-
-        if (elCountdown) {
-            let jamSisa = String(Math.floor(sisaDetikMenujuAdzan / 3600)).padStart(2, '0');
-            let menitSisa = String(Math.floor((sisaDetikMenujuAdzan % 3600) / 60)).padStart(2, '0');
-            let detikSisa = String(sisaDetikMenujuAdzan % 60).padStart(2, '0');
-            elCountdown.innerText = `-${jamSisa}:${menitSisa}:${detikSisa}`;
-            elCountdown.style.display = 'inline-block';
-        }
-
-        if (sisaDetikMenujuAdzan === 7 && !sholatBerikutnya.isBesok && !localIsAlarmAdzanPlay) {
-            localIsAlarmAdzanPlay = true;
-            triggerAlarm('adzan');
-            setTimeout(() => { localIsAlarmAdzanPlay = false; }, 10000);
-        }
-
-        if (isModeSholatBerlangsung) return; 
-
-        let iqamahAktif = null;
-        for (let i = 0; i < daftarSholat.length; i++) {
-            let tParts = daftarSholat[i].waktu.split(':');
-            let adzanDetik = (parseInt(tParts[0]) * 3600) + (parseInt(tParts[1]) * 60);
-            let jedaMenit = dataMasjidJeda[daftarSholat[i].nama] || 10;
-            let batasIqamahDetik = jedaMenit * 60;
-
-            if (sekarangDetik >= adzanDetik && sekarangDetik < adzanDetik + batasIqamahDetik) {
-                iqamahAktif = {
-                    nama: daftarSholat[i].nama,
-                    sisaDetik: (adzanDetik + batasIqamahDetik) - sekarangDetik
-                };
-                break;
-            }
-        }
-
-        if (iqamahAktif) {
-            isModeMenungguIqamah = true;
-            let mIqamah = String(Math.floor(iqamahAktif.sisaDetik / 60)).padStart(2, '0');
-            let sIqamah = String(iqamahAktif.sisaDetik % 60).padStart(2, '0');
-
-            tampilkanInterupsiIqamahPapan(iqamahAktif.nama, `${mIqamah}:${sIqamah}`);
-
-            if (iqamahAktif.sisaDetik === 7 && !localIsAlarmIqamahPlay) {
-                localIsAlarmIqamahPlay = true;
-                triggerAlarm('iqamah');
-                setTimeout(() => { localIsAlarmIqamahPlay = false; }, 10000);
-            }
-
-            if (iqamahAktif.sisaDetik <= 1) {
-                setTimeout(() => {
-                    aktifkanModeStandbySholat();
-                }, 1000);
-            }
-        } else {
-            if (isModeMenungguIqamah) {
-                isModeMenungguIqamah = false;
-                bangunStrukturSlideAntrian();
-            }
-        }
-    }, 1000);
-
-    window.tampilkanInterupsiIqamahPapan = function(namaSholat, stringWaktu) {
-        if (slideTimeout) clearTimeout(slideTimeout);
-        if (scrollInterval) clearInterval(scrollInterval);
-
-        const slideA = document.getElementById('slide-A');
-        const slideB = document.getElementById('slide-B');
-        if (!slideA || !slideB) return;
-
-        const htmlIqamahMenyolok = `
-            <div class="padded-slide-inner" style="justify-content: center; align-items: center; background: #03150d; height: 100%; padding: 2vh 2vw;">
-                <div style="font-size: 4vh; color: #e5c158; font-weight: 700; letter-spacing: 0.2vh; text-transform: uppercase; margin-bottom: 0.5vh;">MENUNGGU IQAMAH SHOLAT</div>
-                <div style="font-size: 7.5vh; color: #ffffff; font-weight: 800; margin-bottom: 2vh; text-transform: uppercase; letter-spacing: 0.1vh; line-height: 1;">${namaSholat}</div>
-                <div style="font-size: 14vh; font-weight: 900; color: #ff5252; background: rgba(255, 0, 0, 0.15); border: 0.5vh solid #ff5252; padding: 0.2vh 7vw; border-radius: 2vh; line-height: 1.15; font-variant-numeric: tabular-nums; margin-bottom: 2.5vh; box-shadow: 0 0 3vh rgba(255, 82, 82, 0.3);">${stringWaktu}</div>
-                <div style="width: 100%; background: rgba(0,0,0,0.4); padding: 2vh 2vw; border-radius: 1.5vh; border: 0.2vh solid rgba(229,193,88,0.3); text-align: center;">
-                    <div style="font-family: 'Amiri', serif; font-size: 4vh; color: #e5c158; direction: rtl; line-height: 1.5; margin-bottom: 1.5vh; font-weight: 700; letter-spacing: 0;">حَدَّثَنَا مُحَمَّدُ بْنُ كَثِيرٍ... عَنْ أَنَسِ بْنِ مَالِكٍ, قَالَ قَالَ رَسُولُ اللَّهِ ﷺ ‏"‏ لاَ يُرَدُّ الدُّعَاءُ بَيْنَ الأَذَانِ وَالإِقَامَةِ ‏"‏ ‏.‏</div>
-                    <div style="font-family: 'Montserrat', sans-serif; font-size: 2.4vh; color: #ffffff; font-weight: 600; line-height: 1.4; font-style: italic; letter-spacing: 0.02vh;">Diriwayatkan Anas bin Malik: "Doa yang dipanjatkan antara adzan dan iqamah tidak akan ditolak."</div>
+        <section class="main-papan-portrait">
+            <div class="papan-header-portrait">PAPAN INFORMASI MASJID</div>
+            <div class="papan-body-portrait">
+                <div id="papan-slide-container" class="slide-container">
+                    <div id="slide-A" class="slide active"></div>
+                    <div id="slide-B" class="slide"></div>
                 </div>
             </div>
-        `;
+        </section>
 
-        if (slideA.classList.contains('active')) {
-            slideA.innerHTML = htmlIqamahMenyolok;
-        } else {
-            slideB.innerHTML = htmlIqamahMenyolok;
-        }
-    };
+        <div class="papan-control-panel">
+            <button class="ctrl-btn" onclick="kembaliSlideManual()">⏮️ Sebelumnya</button>
+            <button class="ctrl-btn" id="btn-pause-play" onclick="toggleJedaOtomatis()">⏸️ Jeda</button>
+            <button class="ctrl-btn" onclick="lanjutSlideManual()">Berikutnya ⏭️</button>
+        </div>
 
-    window.aktifkanModeStandbySholat = function() {
-        if (isModeSholatBerlangsung) return;
-        isModeSholatBerlangsung = true;
-        isModeMenungguIqamah = false;
+        <section class="card-portrait card-rekening-portrait">
+            <h3>REKENING INFAQ MASJID</h3>
+            <div class="rekening-box-portrait">
+                <span class="acc-number">0022999117</span>
+                <span class="acc-owner">Bankaltimtara an. Masjid Assyakur Jone</span>
+            </div>
+        </section>
 
-        const slideA = document.getElementById('slide-A');
-        const slideB = document.getElementById('slide-B');
-        if (!slideA || !slideB) return;
+        <footer class="main-footer-portrait">
+            <div class="marquee-container">
+                <marquee scrollamount="6" id="running-text">Memuat informasi berjalan...</marquee>
+            </div>
+        </footer>
 
-        if (slideTimeout) clearTimeout(slideTimeout);
-        if (scrollInterval) clearInterval(scrollInterval);
+    </div>
 
-        const htmlStandbyGambar = `<img src="waktu_sholat.jpg" class="slide-stretched-img" style="width:100%; height:100%; object-fit:contain; display:block;" onerror="this.onerror=null; this.src='logo.png';">`;
-        
-        slideA.innerHTML = htmlStandbyGambar;
-        slideB.innerHTML = ""; 
-        slideB.classList.remove('active');
-        slideA.classList.add('active');
+    <div id="sholat-standby-overlay"></div>
 
-        setTimeout(() => {
-            isModeSholatBerlangsung = false;
-            bangunStrukturSlideAntrian(); 
-        }, 600000); 
-    };
+    <script src="jadwal_db.js"></script>
+    <script src="combined.js"></script>
 
-    window.muatDataGoogleSheets = async function() {
-        try {
-            const ranges = ["SHOLAT JUMAT!A1:B4", "KEUANGAN!A1:E50", "RUNNING TEXT!A1:A30", "INFOUPDATE LAINNYA!A1:A10"];
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values:batchGet?ranges=${ranges.map(encodeURIComponent).join('&ranges=')}&key=${API_KEY}`;
-            
-            const respon = await fetch(url);
-            if (!respon.ok) throw new Error('Respon Jaringan Lemah');
-            const hasil = await respon.json();
-            if (hasil.valueRanges) {
-                localStorage.setItem('cache_display_masjid', JSON.stringify(hasil.valueRanges));
-                cacheDataSheetGlobal = hasil.valueRanges;
-                if (!isModeSholatBerlangsung && !isModeMenungguIqamah && dataSlides.length === 0) {
+    <script>
+        let isJedaManual = false;
+
+        function toggleJedaOtomatis() {
+            const btn = document.getElementById('btn-pause-play');
+            if (isModeSholatBerlangsung || isModeMenungguIqamah) return;
+
+            isJedaManual = !isJedaManual;
+            if (isJedaManual) {
+                if (slideTimeout) clearTimeout(slideTimeout);
+                if (scrollInterval) clearInterval(scrollInterval);
+                btn.innerHTML = "▶️ Putar";
+                btn.classList.add('active-status');
+            } else {
+                btn.innerHTML = "⏸️ Jeda";
+                btn.classList.remove('active-status');
+                currentSlideIndex++;
+                if (currentSlideIndex >= dataSlides.length) {
                     bangunStrukturSlideAntrian();
+                } else {
+                    jalankanSiklusSlider();
                 }
             }
-        } catch (error) {
-            console.error(error);
-            tampilkanDataDariCacheLokal();
-        }
-    };
-
-    window.tampilkanDataDariCacheLokal = function() {
-        const cacheData = localStorage.getItem('cache_display_masjid');
-        if (cacheData) {
-            cacheDataSheetGlobal = JSON.parse(cacheData);
-            if (!isModeSholatBerlangsung && !isModeMenungguIqamah && dataSlides.length === 0) {
-                bangunStrukturSlideAntrian();
-            }
-        }
-    };
-
-    window.bangunStrukturSlideAntrian = function() {
-        if (isModeSholatBerlangsung || isModeMenungguIqamah || !cacheDataSheetGlobal) return;
-
-        const dataJumat = cacheDataSheetGlobal[0].values || [];
-        const dataKeuangan = cacheDataSheetGlobal[1].values || [];
-        const dataRunningText = cacheDataSheetGlobal[2].values || [];
-        const dataInfoLain = cacheDataSheetGlobal[3].values || [];
-
-        if (dataRunningText.length > 0) {
-            const kumpulanTeks = dataRunningText.map(row => row[0]).filter(teks => teks && teks.trim() !== "").join("   •   ");
-            if (document.getElementById('running-text')) {
-                document.getElementById('running-text').innerText = kumpulanTeks + "   •   ";
-            }
         }
 
-        let saldoAwal = "Rp 0";
-        let totalPemasukan = 0, totalPengeluaran = 0, saldoAkhir = "Rp 0";
-        for (let i = 1; i < dataKeuangan.length; i++) {
-            const baris = dataKeuangan[i]; if (!baris) continue;
-            const keterangan = baris[1] ? baris[1].toUpperCase().trim() : "";
-            if (keterangan.includes("SALDO AWAL")) { saldoAwal = formatMataUangAman(baris[4], false); }
-            totalPemasukan += baris[2] ? bersihkanAngka(baris[2]) : 0;
-            totalPengeluaran += baris[3] ? bersihkanAngka(baris[3]) : 0;
-            if (baris[4] && baris[4].trim() !== "" && baris[4].trim() !== "0") { saldoAkhir = formatMataUangAman(baris[4], false); }
-        }
+        function lanjutSlideManual() {
+            if (isModeSholatBerlangsung || isModeMenungguIqamah || dataSlides.length === 0) return;
+            if (slideTimeout) clearTimeout(slideTimeout);
+            if (scrollInterval) clearInterval(scrollInterval);
 
-        DAFTAR_GAMBAR_LOKAL = [];
-        for (let i = 0; i < dataInfoLain.length; i++) {
-            const isiTeks = dataInfoLain[i][0] ? dataInfoLain[i][0].trim() : "";
-            if (isiTeks.match(/\.(jpg|jpeg|png)$/i)) {
-                DAFTAR_GAMBAR_LOKAL.push(isiTeks);
-            }
-        }
-        DAFTAR_GAMBAR_LOKAL.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
-
-        const canvasTextMurni = dataInfoLain.map(row => row[0]).filter(teks => teks && !teks.trim().match(/\.(jpg|jpeg|png)$/i));
-
-        dataSlides = [];
-        tambahkanItemGambarDinamis();
-        tambahkanItemTeksDinamis(canvasTextMurni);
-
-        let tglJmt = (dataJumat[0] && dataJumat[0][1]) ? dataJumat[0][1] : '-';
-        let khtJmt = (dataJumat[1] && dataJumat[1][1]) ? dataJumat[1][1] : '-';
-        let immJmt = (dataJumat[2] && dataJumat[2][1]) ? dataJumat[2][1] : '-';
-        let bilJmt = (dataJumat[3] && dataJumat[3][1]) ? dataJumat[3][1] : '-';
-        
-        dataSlides.push({
-            tipe: 'TEKS_JUMAT',
-            durasi: 15000,
-            html: `
-                <div class="padded-slide-inner">
-                    <div>PENGUMUMAN SHOLAT JUMAT</div>
-                    <div>${tglJmt}</div>
-                    <div class="scrollable-content" style="overflow:hidden; display:flex; justify-content:center; width:100%;">
-                        <table>
-                            <tr><td>Khatib Jumat</td><td>:</td><td>${khtJmt}</td></tr>
-                            <tr><td>Imam Sholat</td><td>:</td><td>${immJmt}</td></tr>
-                            <tr><td>Bilal / Muadzin</td><td>:</td><td>${bilJmt}</td></tr>
-                        </table>
-                    </div>
-                </div>
-            `
-        });
-
-        dataSlides.push({
-            tipe: 'SALDO_JUMAT',
-            durasi: 15000,
-            html: `
-                <div class="padded-slide-inner" style="justify-content: space-between; padding: 2vh 2vw; height: 100%;">
-                    <div style="background: rgba(0,0,0,0.25); border: 0.18vh solid rgba(229,193,88,0.3); border-radius: 1vh; width: 100%; padding: 1.2vh; text-align: center;">
-                        <span style="font-size: 2vh; color: #a2bcae; display: block; font-weight: 600;">Saldo Jumat Lalu</span>
-                        <strong style="font-size: 3.5vh; color: #ffffff; font-weight: 700; margin-top: 0.5vh; display: block; white-space: nowrap;">${saldoAwal}</strong>
-                    </div>
-                    <div style="display: flex; gap: 1.5vw; width: 100%;">
-                        <div style="flex: 1; background: rgba(46, 204, 113, 0.1); border: 0.18vh solid rgba(46, 204, 113, 0.4); border-radius: 1vh; padding: 1.2vh; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-                            <span style="font-size: 1.9vh; color: #2ecc71; display: block; font-weight: 600; margin-bottom: 0.5vh;">Penerimaan</span>
-                            <strong style="font-size: 2.5vh; color: #ffffff; font-weight: 700; display: block; white-space: nowrap;">${"Rp " + totalPemasukan.toLocaleString('id-ID')}</strong>
-                        </div>
-                        <div style="flex: 1; background: rgba(231, 76, 60, 0.1); border: 0.18vh solid rgba(231, 76, 60, 0.4); border-radius: 1vh; padding: 1.2vh; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-                            <span style="font-size: 1.9vh; color: #e74c3c; display: block; font-weight: 600; margin-bottom: 0.5vh;">Pengeluaran</span>
-                            <strong style="font-size: 2.5vh; color: #ffffff; font-weight: 700; display: block; white-space: nowrap;">${"Rp " + totalPengeluaran.toLocaleString('id-ID')}</strong>
-                        </div>
-                    </div>
-                    <div style="background: linear-gradient(180deg, rgba(11,48,28,0.95) 0%, rgba(5,25,14,0.98) 100%); border: 0.25vh solid #e5c158; border-radius: 1.2vh; width: 100%; padding: 1.8vh; text-align: center;">
-                        <span style="font-size: 2.2vh; color: #e5c158; display: block; font-weight: 600;">SALDO SEKARANG</span>
-                        <strong style="font-size: 4.5vh; color: #ffffff; font-weight: 800; margin-top: 0.5vh; display: block; white-space: nowrap;">${saldoAkhir}</strong>
-                    </div>
-                </div>
-            `
-        });
-
-        let tableRowsHtml = "";
-        for (let i = 1; i < dataKeuangan.length; i++) {
-            const baris = dataKeuangan[i]; if (!baris) continue;
-            tableRowsHtml += `<tr><td class="text-center">${baris[0] || '-'}</td><td>${baris[1] || '-'}</td><td class="text-right">${formatMataUangAman(baris[2], true)}</td><td class="text-right">${formatMataUangAman(baris[3], true)}</td><td class="text-right" style="font-weight:600; color:#e5c158;">${formatMataUangAman(baris[4], true)}</td></tr>`;
-        }
-        if (tableRowsHtml !== "") {
-            dataSlides.push({
-                tipe: 'TABEL_KAS',
-                durasi: 25000,
-                html: `<div class="padded-slide-inner"><div style="font-size:3vh; color:#e5c158; border-bottom:0.18vh dashed rgba(229,193,88,0.4); padding-bottom:1vh; margin-bottom:2vh; font-weight:700; text-align:center;">LAPORAN KAS KEUANGAN MASJID</div><div class="scrollable-content table-responsive"><table class="table-kas"><thead><tr><th>TANGGAL</th><th>KETERANGAN REKENING</th><th>MASUK</th><th>KELUAR</th><th>SALDO</th></tr></thead><tbody>${tableRowsHtml}</tbody></table></div></div>`
-            });
-        }
-        inisialisasiPerputaranPapan();
-    };
-
-    window.tambahkanItemGambarDinamis = function() {
-        if (DAFTAR_GAMBAR_LOKAL.length === 0) return;
-        const namaFileGambar = DAFTAR_GAMBAR_LOKAL[globalImageIndex % DAFTAR_GAMBAR_LOKAL.length];
-        const githubUser = "omvery"; 
-        const repoTvName = "masjid-assyakur"; 
-
-        dataSlides.push({
-            tipe: 'IMAGE_STRETCH',
-            durasi: 15000,
-            html: `<img src="https://${githubUser}.github.io/${repoTvName}/image/${namaFileGambar}" class="slide-stretched-img" onerror="this.onerror=null; this.src='logo.png';">`
-        });
-        globalImageIndex++;
-    };
-
-    window.tambahkanItemTeksDinamis = function(teksMurni) {
-        if (teksMurni.length === 0) return;
-        const teksTampil = teksMurni[globalTextIndex % teksMurni.length];
-        dataSlides.push({
-            tipe: 'TEKS_PENGUMUMAN',
-            durasi: 15000,
-            html: `<div class="padded-slide-inner" style="justify-content: center; align-items: flex-start; padding-left: 5vw; padding-right: 5vw;"><div class="scrollable-content info-text-content" style="padding-top:2vh; text-align: left; white-space: pre-wrap; width: 100%;">${teksTampil}</div></div>`
-        });
-        globalTextIndex = (globalTextIndex + 1) % teksMurni.length;
-    };
-
-    window.bersihkanAngka = function(teks) {
-        if (!teks) return 0;
-        let stringTeks = teks.toString().trim();
-        if (stringTeks.includes(',')) stringTeks = stringTeks.split(',')[0];
-        let clean = stringTeks.replace(/[^0-9]/g, '');
-        return clean ? parseInt(clean, 10) : 0;
-    };
-
-    window.formatMataUangAman = function(teks, sembunyikanJikaNol = false) {
-        if (!teks || teks === "0" || teks === "-" || teks.toString().trim() === "") return sembunyikanJikaNol ? "-" : "Rp 0";
-        let angka = bersihkanAngka(teks);
-        if (angka === 0) return sembunyikanJikaNol ? "-" : "Rp 0";
-        return "Rp " + angka.toLocaleString('id-ID');
-    };
-
-    window.inisialisasiPerputaranPapan = function() {
-        if (slideTimeout) clearTimeout(slideTimeout);
-        if (scrollInterval) clearInterval(scrollInterval);
-        if (dataSlides.length === 0) return;
-        currentSlideIndex = 0;
-        jalankanSiklusSlider();
-    };
-
-    window.jalankanSiklusSlider = function() {
-        if (isModeSholatBerlangsung || isModeMenungguIqamah || (typeof isJedaManual !== 'undefined' && isJedaManual)) return; 
-
-        const slideA = document.getElementById('slide-A');
-        const slideB = document.getElementById('slide-B');
-        if (!slideA || !slideB) return;
-
-        let targetSlide = dataSlides[currentSlideIndex];
-        let kontainerBaru = menggunakanSlideA ? slideA : slideB;
-        let kontainerLama = menggunakanSlideA ? slideB : slideA;
-
-        kontainerBaru.innerHTML = targetSlide.html;
-
-        setTimeout(() => {
+            currentSlideIndex++;
+            if (currentSlideIndex >= dataSlides.length) { currentSlideIndex = 0; }
+            menggunakanSlideA = !menggunakanSlideA;
+            
+            const slideA = document.getElementById('slide-A');
+            const slideB = document.getElementById('slide-B');
+            let targetSlide = dataSlides[currentSlideIndex];
+            let kontainerBaru = menggunakanSlideA ? slideA : slideB;
+            let kontainerLama = menggunakanSlideA ? slideB : slideA;
+            kontainerBaru.innerHTML = targetSlide.html;
             kontainerLama.classList.remove('active');
             kontainerBaru.classList.add('active');
-        }, 50);
 
-        setTimeout(() => {
-            aktifkanAutoScrollKonten(targetSlide.durasi); 
-        }, 1500);
+            if (!isJedaManual) { jalankanSiklusSlider(); }
+        }
 
-        slideTimeout = setTimeout(() => {
+        function kembaliSlideManual() {
+            if (isModeSholatBerlangsung || isModeMenungguIqamah || dataSlides.length === 0) return;
+            if (slideTimeout) clearTimeout(slideTimeout);
             if (scrollInterval) clearInterval(scrollInterval);
-            currentSlideIndex++;
+
+            currentSlideIndex--;
+            if (currentSlideIndex < 0) { currentSlideIndex = dataSlides.length - 1; }
             menggunakanSlideA = !menggunakanSlideA;
 
-            if (currentSlideIndex >= dataSlides.length) {
-                bangunStrukturSlideAntrian(); 
-            } else {
-                jalankanSiklusSlider(); 
-            }
-        }, targetSlide.durasi); 
-    };
+            const slideA = document.getElementById('slide-A');
+            const slideB = document.getElementById('slide-B');
+            let targetSlide = dataSlides[currentSlideIndex];
+            let kontainerBaru = menggunakanSlideA ? slideA : slideB;
+            let kontainerLama = menggunakanSlideA ? slideB : slideA;
+            kontainerBaru.innerHTML = targetSlide.html;
+            kontainerLama.classList.remove('active');
+            kontainerBaru.classList.add('active');
 
-    window.aktifkanAutoScrollKonten = function(waktuTersisaMilidetik) {
-        const elemenScroll = document.querySelector('.active .scrollable-content');
-        if (!elemenScroll || isModeSholatBerlangsung || isModeMenungguIqamah) return;
-
-        const totalJarakScroll = elemenScroll.scrollHeight - elemenScroll.clientHeight;
-        
-        if (totalJarakScroll > 0) {
-            elemenScroll.scrollTop = 0; 
-            const jedaAwal = 2000;
-            const durasiScrollAktif = waktuTersisaMilidetik - jedaAwal - 2000;
-
-            if (durasiScrollAktif > 0) {
-                setTimeout(() => {
-                    let waktuMulai = null;
-                    function langkahScroll(timestamp) {
-                        if (isModeSholatBerlangsung || isModeMenungguIqamah) return;
-                        if (!waktuMulai) waktuMulai = timestamp;
-                        let waktuBerjalan = timestamp - waktuMulai;
-                        let kemajuanProgres = Math.min(waktuBerjalan / durasiScrollAktif, 1);
-                        
-                        elemenScroll.scrollTop = kemajuanProgres * totalJarakScroll;
-                        
-                        if (waktuBerjalan < durasiScrollAktif) {
-                            scrollInterval = requestAnimationFrame(langkahScroll);
-                        }
-                    }
-                    scrollInterval = requestAnimationFrame(langkahScroll);
-                }, jedaAwal);
-            }
+            if (!isJedaManual) { jalankanSiklusSlider(); }
         }
-    };
-
-    window.addEventListener('load', () => {
-        document.addEventListener('dblclick', () => {
-            pancingIzinAudioBrowser();
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
-            } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-            }
-        });
-    });
-})();
+    </script>
+</body>
+</html>
