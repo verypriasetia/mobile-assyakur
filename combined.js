@@ -1,5 +1,5 @@
 /* ==========================================================================
-   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V3.2 (FINAL STABLE BUGFIX)
+   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V3.3 (CLEAN INSTALLED)
    ========================================================================== */
 
 /* ==========================================================================
@@ -115,7 +115,7 @@ setInterval(() => {
     const sekarang = new Date();
     const jam = sekarang.getHours();     
     const menit = sekarang.getMinutes(); 
-    const detik = sekarang.getSeconds(); /* BARIS 108: Bersih dari typo kata asing */
+    const detik = sekarang.getSeconds();
     const sekarangDetik = (jam * 3600) + (menit * 60) + detik;
     
     if (document.getElementById('clock-time')) {
@@ -192,7 +192,6 @@ setInterval(() => {
         let batasIqamahDetik = jedaMenit * 60;
 
         if (sekarangDetik >= adzanDetik && sekarangDetik < adzanDetik + batasIqamahDetik) {
-            /* BARIS 137: Bersih dari kutu teks sisa tempo hari */
             iqamahAktif = {
                 nama: daftarSholat[i].nama,
                 sisaDetik: (adzanDetik + batasIqamahDetik) - sekarangDetik
@@ -474,8 +473,8 @@ function tambahkanItemGambarDinamis() {
     if (DAFTAR_GAMBAR_LOKAL.length === 0) return;
     const namaFileGambar = DAFTAR_GAMBAR_LOKAL[globalImageIndex % DAFTAR_GAMBAR_LOKAL.length];
     
-    // SESUAIKAN IDENTITAS ALAMAT REPO TV LAMA OM VERY DI SINI
-    const githubUser = "omvery"; 
+    // MENYAMAKAN LINK DIRECT DENGAN REPOSITORI TV/STB UTAMA MILIK OM VERY
+    const githubUser = "verypriasetia"; 
     const repoTvName = "masjid-assyakur"; 
 
     dataSlides.push({
