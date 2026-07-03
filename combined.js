@@ -450,21 +450,22 @@ function bangunStrukturSlideAntrian() {
     }
     if (tableRowsHtml !== "") {
         dataSlides.push({
-            tipe: 'TABEL_KAS',
-            durasi: 25000,
-            html: `
-                <div class="padded-slide-inner">
-                    <div style="font-size:3vh; color:#e5c158; border-bottom:0.18vh dashed rgba(229,193,88,0.4); padding-bottom:1vh; margin-bottom:2vh; font-weight:700; text-align:center;">LAPORAN KAS KEUANGAN MASJID</div>
-                    <div class="scrollable-content table-responsive">
-                        <table class="table-kas">
-                            <thead><tr><th>TANGGAL</th><th>KETERANGAN REKENING</th><th>MASUK</th><th>KELUAR</th><th>SALDO</th></tr></thead>
-                            <tbody>${tableRowsHtml}</tbody>
-                        </table>
-                    </div>
-                </div>
-            `
-        });
-    }
+    tipe: 'TABEL_KAS',
+    durasi: 25000,
+    html: `
+        <div class="padded-slide-inner">
+            <div style="font-size:3vh; color:#e5c158; border-bottom:0.18vh dashed rgba(229,193,88,0.4); padding-bottom:1vh; margin-bottom:2vh; font-weight:700; text-align:center; line-height: 1.2;">
+                LAPORAN KAS<br>KEUANGAN MASJID
+            </div>
+            <div class="scrollable-content table-responsive">
+                <table class="table-kas">
+                    <thead><tr><th>TANGGAL</th><th>KETERANGAN REKENING</th><th>MASUK</th><th>KELUAR</th><th>SALDO</th></tr></thead>
+                    <tbody>${tableRowsHtml}</tbody>
+                </table>
+            </div>
+        </div>
+    `
+   });    }
 
     inisialisasiPerputaranPapan();
 }
