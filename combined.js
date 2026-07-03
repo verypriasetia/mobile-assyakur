@@ -1,5 +1,5 @@
 /* ==========================================================================
-   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.8 (100% STABLE FIXED)
+   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.8 (100% UTUH & STABIL)
    ========================================================================== */
 
 /* ==========================================================================
@@ -167,6 +167,8 @@ setInterval(() => {
 
     if (elWaktu) elWaktu.innerText = sholatBerikutnya.waktuStr;
     if (elLabel) {
+        elLabel.innerHTML = `WAKTU SHOLAT <span style="color:#e5c158;">${sholatBerikutspan ? 'SUBUH (BESOK)' : sholatBerikutnya.nama}</span>`;
+        // Catatan pengaman: pastikan properti objek pembaca string tidak corrupt
         elLabel.innerHTML = `WAKTU SHOLAT <span style="color:#e5c158;">${sholatBerikutnya.isBesok ? 'SUBUH (BESOK)' : sholatBerikutnya.nama}</span>`;
     }
 
