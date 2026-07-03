@@ -159,4 +159,271 @@ setInterval(() => {
     }
     if (!sholatBerikutnya) {
         let tParts = jadwalBesok.fajr.split(':');
-        sholatBerikutnya = { nama: 'SUBUH', waktuStr: jadwalBesok.fajr, targetDetik: (parseInt(tParts[0]) * 3600) + (parseInt(tParts[1]) * 60) + 86400
+        sholatBerikutnya = { nama: 'SUBUH', waktuStr: jadwalBesok.fajr, targetDetik: (parseInt(tParts[0]) * 3600) + (parseInt(tParts[1]) * 60) + 86400, isBesok: true };
+    }
+
+    const elLabel = document.getElementById('countdown-title');
+    const elWaktu = document.getElementById('countdown-time');
+    const elCountdown = document.getElementById('countdown-timer');
+
+    if (elWaktu) elWaktu.innerText = sholatBerikutnya.waktuStr;
+    if (elLabel) {
+        elLabel.innerHTML = `WAKTU SHOLAT <span style="color:#e5c158;">${sholatBerikutnya.isBesok ? 'SUBUH (BESOK)' : sholatBerikutnya.nama}</span>`;
+    }
+
+    let sisaDetikMenujuAdzan = sholatBerikutnya.targetDetik - sekarangDetik;
+
+    if (elCountdown) {
+        let jamSisa = String(Math.floor(sisaDetikMenujuAdzan / 3600)).padStart(2, '0');
+        let menitSisa = String(Math.floor((sisaDetikMenujuAdzan % 3600) / 60)).padStart(2, '0');
+        let detikSisa = String(sisaDetikMenujuAdzan % 60).padStart(2, '0');
+        elCountdown.innerText = `-${jamSisa}:${menitSisa}:${detikSisa}`;
+        elCountdown.style.display = 'inline-block';
+    }
+
+    if (sisaDetikMenujuAdzan === 7 && !sholatBerikutnya.isBesok && !isAlarmAdzanPlay) {
+        isAlarmAdzanPlay = true;
+        triggerAlarm('adzan');
+        setTimeout(() => { isAlarmAdzanPlay = false; }, 10000);
+    }
+
+    if (isModeSholatBerlangsung) return; 
+
+    let iqamahAktif = null;
+    for (let i = 0; i < daftarSholat.length; i++) {
+        let tParts = daftarSholat[i].waktu.split(':');
+        let adzanDetik = (parseInt(tParts[0]) * 3600) + (parseInt(tParts[1]) * 60);
+        let jedaMenit = dataMasjidJeda[daftarSholat[i].nama] || 10;
+        let batasIqamahDetik = jedaMenit * 60;
+
+        if (sekarangDetik >= adzanDetik && sekarangDetik < adzanDetik + batasIqamahDetik) {
+            iqamahAktif = {
+                nama: daftarSholat[i].nama,
+                sisaDetik: (adzanDetik + batasIqamahDetik) - sekarangDetik
+            };
+            break;
+        }
+    }
+
+    if (iqamahAktif) {
+        isModeMenungguIqamah = true;
+        let mIqamah = String(Math.floor(iqamahAktif.sisaDetik / 60)).padStart(2, '0');
+        let sIqamah = String(iqamahAktif.sisaDetik % 60).padStart(2, '0');
+
+        tampilkanInterupsiIqamahPapan(iqamahAktif.nama, `${mIqamah}:${sIqamah}`);
+
+        if (iqamahAktif.sisaDetik === 7 && !isAlarmIqamahPlay) {
+            isAlarmIqamahPlay = true;
+            triggerAlarm('iqamah');
+            setTimeout(() => { isAlarmIqamahPlay = false; }, 10000);
+        }
+
+        if (iqamahAktif.sisaDetik <= 1) {
+            setTimeout(() => {
+                aktifkanModeStandbySholat();
+            }, 1000);
+        }
+    } else {
+        if (isModeMenungguIqamah) {
+            isModeMenungguIqamah = false;
+            bangunStrukturSlideAntrian();
+        }
+    }
+}, 1000);
+
+function tampilkanInterupsiIqamahPapan(namaSholat, stringWaktu) {
+    if (slideTimeout) clearTimeout(slideTimeout);
+    if (scrollInterval) clearInterval(scrollInterval);
+
+    const slideA = document.getElementById('slide-A');
+    const slideB = document.getElementById('slide-B');
+    if (!slideA || !slideB) return;
+
+    const htmlIqamahMenyolok = `
+        <div class="padded-slide-inner" style="justify-content: center; align-items: center; background: #03150d; height: 100%; padding: 2vh 2vw;">
+            <div style="font-size: 4vh; color: #e5c158; font-weight: 700; letter-spacing: 0.2vh; text-transform: uppercase; margin-bottom: 0.5vh;">MENUNGGU IQAMAH SHOLAT</div>
+            <div style="font-size: 7.5vh; color: #ffffff; font-weight: 800; margin-bottom: 2vh; text-transform: uppercase; letter-spacing: 0.1vh; line-height: 1;">${namaSholat}</div>
+            
+            <div style="font-size: 14vh; font-weight: 900; color: #ff5252; background: rgba(255, 0, 0, 0.15); border: 0.5vh solid #ff5252; padding: 0.2vh 7vw; border-radius: 2vh; line-height: 1.15; font-variant-numeric: tabular-nums; margin-bottom: 2.5vh; box-shadow: 0 0 3vh rgba(255, 82, 82, 0.3);">
+                ${stringWaktu}
+            </div>
+            
+            <div style="width: 100%; background: rgba(0,0,0,0.4); padding: 2vh 2vw; border-radius: 1.5vh; border: 0.2vh solid rgba(229,193,88,0.3); text-align: center;">
+                <div style="font-family: 'Amiri', serif; font-size: 4vh; color: #e5c158; direction: rtl; line-height: 1.5; margin-bottom: 1.5vh; font-weight: 700; letter-spacing: 0;">
+                    حَدَّثَنَا مُحَمَّدُ بْنُ كَثِيرٍ... عَنْ أَنَسِ بْنِ مَالِكٍ, قَالَ قَالَ رَسُولُ اللَّهِ ﷺ ‏"‏ لاَ يُرَدُّ الدُّعَاءُ بَيْنَ الأَذَانِ وَالإِقَامَةِ ‏"‏ ‏.‏
+                </div>
+                <div style="font-family: 'Montserrat', sans-serif; font-size: 2.4vh; color: #ffffff; font-weight: 600; line-height: 1.4; font-style: italic; letter-spacing: 0.02vh;">
+                    Diriwayatkan Anas bin Malik: "Doa yang dipanjatkan antara adzan dan iqamah tidak akan ditolak."
+                </div>
+            </div>
+        </div>
+    `;
+
+    if (slideA.classList.contains('active')) {
+        slideA.innerHTML = htmlIqamahMenyolok;
+    } else if (slideB.classList.contains('active')) {
+        slideB.innerHTML = htmlIqamahMenyolok;
+    } else {
+        slideA.innerHTML = htmlIqamahMenyolok;
+        slideA.classList.add('active');
+    }
+}
+
+function aktifkanModeStandbySholat() {
+    if (isModeSholatBerlangsung) return;
+
+    isModeSholatBerlangsung = true;
+    isModeMenungguIqamah = false;
+
+    const slideA = document.getElementById('slide-A');
+    const slideB = document.getElementById('slide-B');
+    if (!slideA || !slideB) return;
+
+    if (slideTimeout) clearTimeout(slideTimeout);
+    if (scrollInterval) clearInterval(scrollInterval);
+
+    const htmlStandbyGambar = `<img src="waktu_sholat.jpg" class="slide-stretched-img" style="width:100%; height:100%; object-fit:contain; display:block;" onerror="this.onerror=null; this.src='logo.png';">`;
+    
+    slideA.innerHTML = htmlStandbyGambar;
+    slideB.innerHTML = ""; 
+    slideB.classList.remove('active');
+    slideA.classList.add('active');
+
+    setTimeout(() => {
+        isModeSholatBerlangsung = false;
+        bangunStrukturSlideAntrian(); 
+    }, 600000); 
+}
+
+/* ==========================================================================
+   BAGIAN 3: PIPELINE MATRIX DATA INTERFACE GOOGLE SHEETS
+   ========================================================================== */
+window.addEventListener('DOMContentLoaded', () => {
+    tampilkanDataDariCacheLokal();
+    muatDataGoogleSheets();
+    setInterval(muatDataGoogleSheets, 5 * 60 * 1000); 
+});
+
+let cacheDataSheetGlobal = null;
+
+async function muatDataGoogleSheets() {
+    try {
+        const ranges = ["SHOLAT JUMAT!A1:B4", "KEUANGAN!A1:E50", "RUNNING TEXT!A1:A30", "INFOUPDATE LAINNYA!A1:A10"];
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values:batchGet?ranges=${ranges.map(encodeURIComponent).join('&ranges=')}&key=${API_KEY}`;
+        
+        const respon = await fetch(url);
+        if (!respon.ok) throw new Error('Respon Jaringan Lemah');
+        const hasil = await respon.json();
+        if (hasil.valueRanges) {
+            localStorage.setItem('cache_display_masjid', JSON.stringify(hasil.valueRanges));
+            cacheDataSheetGlobal = hasil.valueRanges;
+            if (!isModeSholatBerlangsung && !isModeMenungguIqamah && dataSlides.length === 0) {
+                bangunStrukturSlideAntrian();
+            }
+        }
+    } catch (error) {
+        console.error("Gagal sinkronisasi data Google Sheets, memakai cache:", error);
+        tampilkanDataDariCacheLokal();
+    }
+}
+
+function tampilkanDataDariCacheLokal() {
+    const cacheData = localStorage.getItem('cache_display_masjid');
+    if (cacheData) {
+        cacheDataSheetGlobal = JSON.parse(cacheData);
+        if (!isModeSholatBerlangsung && !isModeMenungguIqamah && dataSlides.length === 0) {
+            bangunStrukturSlideAntrian();
+        }
+    } else {
+        cacheDataSheetGlobal = [
+            { values: [["Tanggal","Belum Sinkron"],["Khatib","-"],["Imam","-"],["Bilal","-"]] },
+            { values: [["Tanggal","Keterangan","Masuk","Keluar","Saldo"],["-","Saldo Awal","0","0","0"]] },
+            { values: [["Selamat Datang di Masjid Assyakur - Desa Jone Paser"]] },
+            { values: [["Menunggu pemuatan data Google Sheets pertama..."]] }
+        ];
+        bangunStrukturSlideAntrian();
+    }
+}
+
+function bangunStrukturSlideAntrian() {
+    if (isModeSholatBerlangsung || isModeMenungguIqamah || !cacheDataSheetGlobal) return;
+
+    const dataJumat = cacheDataSheetGlobal[0].values || [];
+    const dataKeuangan = cacheDataSheetGlobal[1].values || [];
+    const dataRunningText = cacheDataSheetGlobal[2].values || [];
+    const dataInfoLain = cacheDataSheetGlobal[3].values || [];
+
+    if (dataRunningText.length > 0) {
+        const kumpulanTeks = dataRunningText.map(row => row[0]).filter(teks => teks && teks.trim() !== "").join("   •   ");
+        if (document.getElementById('running-text')) {
+            document.getElementById('running-text').innerText = kumpulanTeks + "   •   ";
+        }
+    }
+
+    let saldoAwal = "Rp 0";
+    let totalPemasukan = 0, totalPengeluaran = 0, saldoAkhir = "Rp 0";
+    for (let i = 1; i < dataKeuangan.length; i++) {
+        const baris = dataKeuangan[i]; if (!baris) continue;
+        const keterangan = baris[1] ? baris[1].toUpperCase().trim() : "";
+        if (keterangan.includes("SALDO AWAL")) { saldoAwal = formatMataUangAman(baris[4], false); }
+        totalPemasukan += baris[2] ? bersihkanAngka(baris[2]) : 0;
+        totalPengeluaran += baris[3] ? bersihkanAngka(baris[3]) : 0;
+        if (baris[4] && baris[4].trim() !== "" && baris[4].trim() !== "0") { saldoAkhir = formatMataUangAman(baris[4], false); }
+    }
+
+    DAFTAR_GAMBAR_LOKAL = [];
+    for (let i = 0; i < dataInfoLain.length; i++) {
+        const isiTeks = dataInfoLain[i][0] ? dataInfoLain[i][0].trim() : "";
+        if (isiTeks.match(/\.(jpg|jpeg|png)$/i)) {
+            DAFTAR_GAMBAR_LOKAL.push(isiTeks);
+        }
+    }
+    DAFTAR_GAMBAR_LOKAL.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+
+    const canvasTextMurni = dataInfoLain.map(row => row[0]).filter(teks => teks && !teks.trim().match(/\.(jpg|jpeg|png)$/i));
+
+    dataSlides = [];
+
+    // Pengurangan pemanggilan antrean ganda monoton
+    tambahkanItemGambarDinamis();
+    tambahkanItemTeksDinamis(canvasTextMurni);
+
+    let tglJmt = (dataJumat[0] && dataJumat[0][1]) ? dataJumat[0][1] : '-';
+    let khtJmt = (dataJumat[1] && dataJumat[1][1]) ? dataJumat[1][1] : '-';
+    let immJmt = (dataJumat[2] && dataJumat[2][1]) ? dataJumat[2][1] : '-';
+    let bilJmt = (dataJumat[3] && dataJumat[3][1]) ? dataJumat[3][1] : '-';
+    
+    dataSlides.push({
+        tipe: 'TEKS_JUMAT',
+        durasi: 15000,
+        html: `
+            <div class="padded-slide-inner">
+                <div>PENGUMUMAN SHOLAT JUMAT</div>
+                <div>${tglJmt}</div>
+                <div class="scrollable-content" style="overflow:hidden; display:flex; justify-content:center; width:100%;">
+                    <table>
+                        <tr><td>Khatib Jumat</td><td>:</td><td>${khtJmt}</td></tr>
+                        <tr><td>Imam Sholat</td><td>:</td><td>${immJmt}</td></tr>
+                        <tr><td>Bilal / Muadzin</td><td>:</td><td>${bilJmt}</td></tr>
+                    </table>
+                </div>
+            </div>
+        `
+    });
+
+    dataSlides.push({
+        tipe: 'SALDO_JUMAT',
+        durasi: 15000,
+        html: `
+            <div class="padded-slide-inner" style="justify-content: space-between; padding: 2vh 2vw; height: 100%;">
+                <div style="background: rgba(0,0,0,0.25); border: 0.18vh solid rgba(229,193,88,0.3); border-radius: 1vh; width: 100%; padding: 1.2vh; text-align: center;">
+                    <span style="font-size: 2vh; color: #a2bcae; display: block; font-weight: 600;">Saldo Jumat Lalu</span>
+                    <strong style="font-size: 3.5vh; color: #ffffff; font-weight: 700; margin-top: 0.5vh; display: block; white-space: nowrap;">${saldoAwal}</strong>
+                </div>
+                <div style="display: flex; gap: 1.5vw; width: 100%;">
+                    <div style="flex: 1; background: rgba(46, 204, 113, 0.1); border: 0.18vh solid rgba(46, 204, 113, 0.4); border-radius: 1vh; padding: 1.2vh; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                        <span style="font-size: 1.9vh; color: #2ecc71; display: block; font-weight: 600; margin-bottom: 0.5vh;">Penerimaan</span>
+                        <strong style="font-size: 2.5vh; color: #ffffff; font-weight: 700; display: block; white-space: nowrap;">${"Rp " + totalPemasukan.toLocaleString('id-ID')}</strong>
+                    </div>
+                    <div style="flex: 1; background: rgba(231, 76, 60, 0.1); border: 0.18vh solid rgba(231, 76, 60, 0.4); border-radius: 1vh; padding: 1.2vh; text-align: center; display: flex; flex-direction: column; justify-content: center;">
+                        <span style="font-size: 1.9vh; color: #e74c3c; display: block; font-weight: 600;
