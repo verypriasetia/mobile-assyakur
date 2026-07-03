@@ -1,5 +1,5 @@
 /* ==========================================================================
-   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.8 (RESTORED 1 BARIS KAS)
+   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.8 (100% STABLE FIXED)
    ========================================================================== */
 
 /* ==========================================================================
@@ -88,7 +88,6 @@ function hitungHijriyahOtomatis(dateObj) {
         "Ramadhan", "Syawwal", "Dzulqa'dah", "Dzulhijjah"
     ];
 
-    // Proteksi indeks batas bawah 0 dan batas atas 11 agar terhindar dari error 'undefined'
     let indeksBulan = Math.max(0, Math.min(11, m - 1));
 
     return `${d} ${namaBulanHijriyah[indeksBulan]} ${y} H`;
@@ -384,7 +383,6 @@ function bangunStrukturSlideAntrian() {
 
     dataSlides = [];
 
-    // Pengurangan pemanggilan antrean ganda monoton
     tambahkanItemGambarDinamis();
     tambahkanItemTeksDinamis(canvasTextMurni);
 
@@ -426,4 +424,187 @@ function bangunStrukturSlideAntrian() {
                         <strong style="font-size: 2.5vh; color: #ffffff; font-weight: 700; display: block; white-space: nowrap;">${"Rp " + totalPemasukan.toLocaleString('id-ID')}</strong>
                     </div>
                     <div style="flex: 1; background: rgba(231, 76, 60, 0.1); border: 0.18vh solid rgba(231, 76, 60, 0.4); border-radius: 1vh; padding: 1.2vh; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-                        <span style="font-size: 1.9vh; color: #e74c3c; display: block; font-weight: 600;
+                        <span style="font-size: 1.9vh; color: #e74c3c; display: block; font-weight: 600; margin-bottom: 0.5vh;">Pengeluaran</span>
+                        <strong style="font-size: 2.5vh; color: #ffffff; font-weight: 700; display: block; white-space: nowrap;">${"Rp " + totalPengeluaran.toLocaleString('id-ID')}</strong>
+                    </div>
+                </div>
+                <div style="background: linear-gradient(180deg, rgba(11,48,28,0.95) 0%, rgba(5,25,14,0.98) 100%); border: 0.25vh solid #e5c158; border-radius: 1.2vh; width: 100%; padding: 1.8vh; text-align: center;">
+                    <span style="font-size: 2.2vh; color: #e5c158; display: block; font-weight: 600;">SALDO SEKARANG</span>
+                    <strong style="font-size: 4.5vh; color: #ffffff; font-weight: 800; margin-top: 0.5vh; display: block; white-space: nowrap;">${saldoAkhir}</strong>
+                </div>
+            </div>
+        `
+    });
+
+    let tableRowsHtml = "";
+    for (let i = 1; i < dataKeuangan.length; i++) {
+        const baris = dataKeuangan[i]; if (!baris || baris.length === 0) continue;
+        tableRowsHtml += `
+            <tr>
+                <td class="text-center">${baris[0] || '-'}</td>
+                <td>${baris[1] || '-'}</td>
+                <td class="text-right">${formatMataUangAman(baris[2], true)}</td>
+                <td class="text-right">${formatMataUangAman(baris[3], true)}</td>
+                <td class="text-right" style="font-weight:600; color:#e5c158;">${formatMataUangAman(baris[4], true)}</td>
+            </tr>
+        `;
+    }
+    if (tableRowsHtml !== "") {
+        dataSlides.push({
+            tipe: 'TABEL_KAS',
+            durasi: 25000,
+            html: `
+                <div class="padded-slide-inner">
+                    <div style="font-size:3vh; color:#e5c158; border-bottom:0.18vh dashed rgba(229,193,88,0.4); padding-bottom:1vh; margin-bottom:2vh; font-weight:700; text-align:center;">LAPORAN KAS KEUANGAN MASJID</div>
+                    <div class="scrollable-content table-responsive">
+                        <table class="table-kas">
+                            <thead><tr><th>TANGGAL</th><th>KETERANGAN REKENING</th><th>MASUK</th><th>KELUAR</th><th>SALDO</th></tr></thead>
+                            <tbody>${tableRowsHtml}</tbody>
+                        </table>
+                    </div>
+                </div>
+            `
+        });
+    }
+
+    inisialisasiPerputaranPapan();
+}
+
+function tambahkanItemGambarDinamis() {
+    if (DAFTAR_GAMBAR_LOKAL.length === 0) return;
+    const namaFileGambar = DAFTAR_GAMBAR_LOKAL[globalImageIndex % DAFTAR_GAMBAR_LOKAL.length];
+    
+    // Tautan online bersama, langsung menembak ke repositori display TV utama Anda
+    const urlGambarGithubTV = `https://raw.githubusercontent.com/verypriasetia/masjid-assyakur/main/image/${namaFileGambar}`;
+    
+    dataSlides.push({
+        tipe: 'IMAGE_STRETCH',
+        durasi: 15000,
+        html: `<img src="${urlGambarGithubTV}" class="slide-stretched-img" onerror="this.onerror=null; this.src='logo.png';">`
+    });
+    globalImageIndex++;
+}
+
+function tambahkanItemTeksDinamis(teksMurni) {
+    if (teksMurni.length === 0) {
+        dataSlides.push({
+            tipe: 'TEKS_PENGUMUMAN',
+            durasi: 15000,
+            html: `<div class="padded-slide-inner" style="justify-content:center; align-items:center;"><div class="scrollable-content info-text-content" style="padding-top:2vh; text-align: left; white-space: pre-wrap;">Masjid Assyakur Desa Jone Paser</div></div>`
+        });
+        return;
+    }
+    const teksTampil = teksMurni[globalTextIndex % teksMurni.length];
+    dataSlides.push({
+        tipe: 'TEKS_PENGUMUMAN',
+        durasi: 15000,
+        html: `
+            <div class="padded-slide-inner" style="justify-content: center; align-items: flex-start; padding-left: 5vw; padding-right: 5vw;">
+                <div class="scrollable-content info-text-content" style="padding-top:2vh; text-align: left; white-space: pre-wrap; width: 100%;">${teksTampil}</div>
+            </div>
+        `
+    });
+    globalTextIndex = (globalTextIndex + 1) % teksMurni.length;
+}
+
+function bersihkanAngka(teks) {
+    if (!teks) return 0;
+    let stringTeks = teks.toString().trim();
+    if (stringTeks.includes(',')) stringTeks = stringTeks.split(',')[0];
+    let clean = stringTeks.replace(/[^0-9]/g, '');
+    return clean ? parseInt(clean, 10) : 0;
+}
+
+function formatMataUangAman(teks, sembunyikanJikaNol = false) {
+    if (!teks || teks === "0" || teks === "-" || teks.toString().trim() === "") return sembunyikanJikaNol ? "-" : "Rp 0";
+    let angka = bersihkanAngka(teks);
+    if (angka === 0) return sembunyikanJikaNol ? "-" : "Rp 0";
+    return "Rp " + angka.toLocaleString('id-ID');
+}
+
+function inisialisasiPerputaranPapan() {
+    if (slideTimeout) clearTimeout(slideTimeout);
+    if (scrollInterval) clearInterval(scrollInterval);
+    if (dataSlides.length === 0) return;
+    currentSlideIndex = 0;
+    jalankanSiklusSlider();
+}
+
+function jalankanSiklusSlider() {
+    if (isModeSholatBerlangsung || isModeMenungguIqamah || isJedaManual) return; 
+
+    const slideA = document.getElementById('slide-A');
+    const slideB = document.getElementById('slide-B');
+    if (!slideA || !slideB) return;
+
+    let targetSlide = dataSlides[currentSlideIndex];
+    let kontainerBaru = menggunakanSlideA ? slideA : slideB;
+    let kontainerLama = menggunakanSlideA ? slideB : slideA;
+
+    kontainerBaru.innerHTML = targetSlide.html;
+
+    setTimeout(() => {
+        kontainerLama.classList.remove('active');
+        kontainerBaru.classList.add('active');
+    }, 50);
+
+    setTimeout(() => {
+        aktifkanAutoScrollKonten(targetSlide.durasi); 
+    }, 1500);
+
+    slideTimeout = setTimeout(() => {
+        if (scrollInterval) clearInterval(scrollInterval);
+        currentSlideIndex++;
+        menggunakanSlideA = !menggunakanSlideA;
+
+        if (currentSlideIndex >= dataSlides.length) {
+            bangunStrukturSlideAntrian(); 
+        } else {
+            jalankanSiklusSlider(); 
+        }
+    }, targetSlide.durasi); 
+}
+
+function aktifkanAutoScrollKonten(waktuTersisaMilidetik) {
+    const elemenScroll = document.querySelector('.active .scrollable-content');
+    if (!elemenScroll || isModeSholatBerlangsung || isModeMenungguIqamah) return;
+
+    const totalJarakScroll = elemenScroll.scrollHeight - elemenScroll.clientHeight;
+    
+    if (totalJarakScroll > 0) {
+        elemenScroll.scrollTop = 0; 
+        const jedaAwal = 2000;
+        const jedaAkhir = 2000;
+        const durasiScrollAktif = waktuTersisaMilidetik - jedaAwal - jedaAkhir;
+
+        if (durasiScrollAktif > 0) {
+            setTimeout(() => {
+                let waktuMulai = null;
+                function langkahScroll(timestamp) {
+                    if (isModeSholatBerlangsung || isModeMenungguIqamah) return;
+                    if (!waktuMulai) waktuMulai = timestamp;
+                    let waktuBerjalan = timestamp - waktuMulai;
+                    let kemajuanProgres = Math.min(waktuBerjalan / durasiScrollAktif, 1);
+                    
+                    elemenScroll.scrollTop = kemajuanProgres * totalJarakScroll;
+                    
+                    if (waktuBerjalan < durasiScrollAktif) {
+                        scrollInterval = requestAnimationFrame(langkahScroll);
+                    }
+                }
+                scrollInterval = requestAnimationFrame(langkahScroll);
+            }, jedaAwal);
+        }
+    }
+}
+
+document.addEventListener('dblclick', () => {
+    pancingIzinAudioBrowser();
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            console.error(`Gagal mengaktifkan Full Screen: ${err.message}`);
+        });
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
+});
