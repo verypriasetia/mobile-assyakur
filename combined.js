@@ -1,5 +1,5 @@
 /* ==========================================================================
-   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.8 (100% UTUH & STABIL)
+   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.8 (FULL NAVIGASI FIXED)
    ========================================================================== */
 
 /* ==========================================================================
@@ -127,7 +127,7 @@ setInterval(() => {
     }
 
     if (document.getElementById('clock-date')) {
-        document.getElementById('clock-date').innerText = sekarang.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('clock-date').innerText = Bird = sekarang.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
 
     if (document.getElementById('clock-hijri')) {
@@ -167,8 +167,6 @@ setInterval(() => {
 
     if (elWaktu) elWaktu.innerText = sholatBerikutnya.waktuStr;
     if (elLabel) {
-        elLabel.innerHTML = `WAKTU SHOLAT <span style="color:#e5c158;">${sholatBerikutspan ? 'SUBUH (BESOK)' : sholatBerikutnya.nama}</span>`;
-        // Catatan pengaman: pastikan properti objek pembaca string tidak corrupt
         elLabel.innerHTML = `WAKTU SHOLAT <span style="color:#e5c158;">${sholatBerikutnya.isBesok ? 'SUBUH (BESOK)' : sholatBerikutnya.nama}</span>`;
     }
 
@@ -598,6 +596,111 @@ function aktifkanAutoScrollKonten(waktuTersisaMilidetik) {
             }, jedaAwal);
         }
     }
+}
+
+/* ==========================================================================
+   BAGIAN 4: FUNGSI KONTROL NAVIGASI MANUAL (PLAY, PAUSE, NEXT, PREV)
+   ========================================================================== */
+function jedaSliderManual() {
+    isJedaManual = true;
+    if (slideTimeout) clearTimeout(slideTimeout);
+    if (scrollInterval) clearInterval(scrollInterval);
+    console.log("Slider dijeda secara manual.");
+}
+
+function lanjutkanSliderManual() {
+    isJedaManual = false;
+    if (slideTimeout) clearTimeout(slideTimeout);
+    if (scrollInterval) clearInterval(scrollInterval);
+    
+    if (dataSlides.length > 0) {
+        jalankanSiklusSlider();
+    }
+    console.log("Slider dilanjutkan secara otomatis.");
+}
+
+function keSlideBerikutnya() {
+    if (isModeSholatBerlangsung || isModeMenungguIqamah || dataSlides.length === 0) return;
+
+    if (slideTimeout) clearTimeout(slideTimeout);
+    if (scrollInterval) clearInterval(scrollInterval);
+
+    currentSlideIndex++;
+    if (currentSlideIndex >= dataSlides.length) {
+        currentSlideIndex = 0;
+    }
+    menggunakanSlideA = !menggunakanSlideA;
+
+    const slideA = document.getElementById('slide-A');
+    const slideB = document.getElementById('slide-B');
+    if (!slideA || !slideB) return;
+
+    let targetSlide = dataSlides[currentSlideIndex];
+    let kontainerBaru = menggunakanSlideA ? slideA : slideB;
+    let kontainerLama = menggunakanSlideA ? slideB : slideA;
+
+    kontainerBaru.innerHTML = targetSlide.html;
+    kontainerLama.classList.remove('active');
+    kontainerBaru.classList.add('active');
+
+    setTimeout(() => {
+        aktifkanAutoScrollKonten(targetSlide.durasi); 
+    }, 1500);
+
+    if (!isJedaManual) {
+        slideTimeout = setTimeout(() => {
+            currentSlideIndex++;
+            menggunakanSlideA = !menggunakanSlideA;
+            if (currentSlideIndex >= dataSlides.length) {
+                bangunStrukturSlideAntrian();
+            } else {
+                jalankanSiklusSlider();
+            }
+        }, targetSlide.durasi);
+    }
+    console.log(`Pindah manual ke slide berikutnya: Indeks ${currentSlideIndex}`);
+}
+
+function keSlideSebelumnya() {
+    if (isModeSholatBerlangsung || isModeMenungguIqamah || dataSlides.length === 0) return;
+
+    if (slideTimeout) clearTimeout(slideTimeout);
+    if (scrollInterval) clearInterval(scrollInterval);
+
+    currentSlideIndex--;
+    if (currentSlideIndex < 0) {
+        currentSlideIndex = dataSlides.length - 1;
+    }
+    menggunakanSlideA = !menggunakanSlideA;
+
+    const slideA = document.getElementById('slide-A');
+    const slideB = document.getElementById('slide-B');
+    if (!slideA || !slideB) return;
+
+    let targetSlide = dataSlides[currentSlideIndex];
+    let kontainerBaru = menggunakanSlideA ? slideA : slideB;
+    let kontainerLama = menggunakanSlideA ? slideB : slideA;
+
+    kontainerBaru.innerHTML = targetSlide.html;
+    kontainerLama.classList.remove('active');
+    kontainerBaru.classList.add('active');
+
+    setTimeout(() => {
+        aktifkanAutoScrollKonten(targetSlide.durasi); 
+    }, 1500);
+
+    if (!isJedaManual) {
+        slideTimeout = setTimeout(() => {
+            currentSlideIndex++;
+            menggunakanSlideA = !menggunakanSlideA;
+            if (currentSlideIndex >= dataSlides.length) {
+                bangunStrukturSlideAntrian();
+            } else {
+                jalankanSiklusSlider();
+            }
+        }, targetSlide.durasi);
+    }
+    console.log(`Pindah manual ke slide sebelumnya: Indeks ${currentSlideIndex}`);
 }
 
 document.addEventListener('dblclick', () => {
