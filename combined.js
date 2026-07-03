@@ -395,7 +395,7 @@ function bangunStrukturSlideAntrian() {
         durasi: 15000,
         html: `
             <div class="padded-slide-inner">
-                <div>PENGUMUMAN SHOLAT JUMAT</div>
+                <div>SHOLAT JUMAT</div>
                 <div>${tglJmt}</div>
                 <div class="scrollable-content" style="overflow:hidden; display:flex; justify-content:center; width:100%;">
                     <table>
