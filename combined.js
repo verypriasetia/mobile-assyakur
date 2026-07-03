@@ -145,4 +145,18 @@ setInterval(() => {
         { nama: 'DZUHUR', waktu: jadwalHariIni.dhuhr },
         { nama: 'ASHAR', waktu: jadwalHariIni.asr },
         { nama: 'MAGHRIB', waktu: jadwalHariIni.magrib },
-        { nama: 'ISYA', waktu: jadwalHariIni.
+        { nama: 'ISYA', waktu: jadwalHariIni.isya }
+    ];
+
+    let sholatBerikutnya = null;
+    for (let i = 0; i < daftarSholat.length; i++) {
+        let tParts = daftarSholat[i].waktu.split(':');
+        let targetDetik = (parseInt(tParts[0]) * 3600) + (parseInt(tParts[1]) * 60);
+        if (targetDetik > sekarangDetik) {
+            sholatBerikutnya = { nama: daftarSholat[i].nama, waktuStr: daftarSholat[i].waktu, targetDetik: targetDetik, isBesok: false };
+            break;
+        }
+    }
+    if (!sholatBerikutnya) {
+        let tParts = jadwalBesok.fajr.split(':');
+        sholatBerikutnya = { nama: 'SUBUH', waktuStr: jadwalBesok.fajr, targetDetik: (parseInt(tParts[0]) * 3600) + (parseInt(tParts[1]) * 60) + 86400
