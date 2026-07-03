@@ -1,5 +1,5 @@
 /* ==========================================================================
-   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.7 (MUTAKHIR SINKRON PORTRAIT)
+   COMBINED.JS - ENGINE SIGNAGE MASJID ASSYAKUR V2.8 (RESTORED 1 BARIS KAS)
    ========================================================================== */
 
 /* ==========================================================================
@@ -245,7 +245,7 @@ function tampilkanInterupsiIqamahPapan(namaSholat, stringWaktu) {
             
             <div style="width: 100%; background: rgba(0,0,0,0.4); padding: 2vh 2vw; border-radius: 1.5vh; border: 0.2vh solid rgba(229,193,88,0.3); text-align: center;">
                 <div style="font-family: 'Amiri', serif; font-size: 4vh; color: #e5c158; direction: rtl; line-height: 1.5; margin-bottom: 1.5vh; font-weight: 700; letter-spacing: 0;">
-                    حَدَّثَنَا مُحَمَّدُ بْنُ كَثِيرٍ... عَنْ أَنَسِ بْنِ مَالِكٍ, قَالَ قَالَ رَسُولُ اللَّهِ ﷺ ‏"‏ لاَ يُرَدُّ الدُّعَاءُ بَيْنَ الأَذَانِ وَالإِقَAMAH ‏"‏ ‏.‏
+                    حَدَّثَنَا مُحَمَّدُ بْنُ كَثِيرٍ... عَنْ أَنَسِ بْنِ مَالِكٍ, قَالَ قَالَ رَسُولُ اللَّهِ ﷺ ‏"‏ لاَ يُرَدُّ الدُّعَاءُ بَيْنَ الأَذَانِ وَالإِقَامَةِ ‏"‏ ‏.‏
                 </div>
                 <div style="font-family: 'Montserrat', sans-serif; font-size: 2.4vh; color: #ffffff; font-weight: 600; line-height: 1.4; font-style: italic; letter-spacing: 0.02vh;">
                     Diriwayatkan Anas bin Malik: "Doa yang dipanjatkan antara adzan dan iqamah tidak akan ditolak."
@@ -382,9 +382,6 @@ function bangunStrukturSlideAntrian() {
     tambahkanItemGambarDinamis();
     tambahkanItemTeksDinamis(canvasTextMurni);
 
-    tambahkanItemGambarDinamis();
-    tambahkanItemTeksDinamis(canvasTextMurni);
-
     let tglJmt = (dataJumat[0] && dataJumat[0][1]) ? dataJumat[0][1] : '-';
     let khtJmt = (dataJumat[1] && dataJumat[1][1]) ? dataJumat[1][1] : '-';
     let immJmt = (dataJumat[2] && dataJumat[2][1]) ? dataJumat[2][1] : '-';
@@ -409,7 +406,7 @@ function bangunStrukturSlideAntrian() {
     });
 
     // ==========================================================================
-    // MODUL UPDATE: RE-LAYOUT MATRIKS SALDO KAS PATAH DUA BARIS (DAMAI MOBIL)
+    // MODUL UPDATE: RESTORED 1 BARIS LURUS DENGAN FONT DIOPTIMALKAN AGAR MUAT
     // ==========================================================================
     dataSlides.push({
         tipe: 'SALDO_JUMAT',
@@ -418,29 +415,21 @@ function bangunStrukturSlideAntrian() {
             <div class="padded-slide-inner" style="justify-content: space-between; padding: 2vh 2vw; height: 100%;">
                 <div style="background: rgba(0,0,0,0.25); border: 0.18vh solid rgba(229,193,88,0.3); border-radius: 1vh; width: 100%; padding: 1.2vh; text-align: center;">
                     <span style="font-size: 2vh; color: #a2bcae; display: block; font-weight: 600;">Saldo Jumat Lalu</span>
-                    <strong style="font-size: 3.5vh; color: #ffffff; font-weight: 700; margin-top: 0.5vh; display: block;">
-                        ${saldoAwal.replace("Rp ", "Rp<br>")}
-                    </strong>
+                    <strong style="font-size: 3.5vh; color: #ffffff; font-weight: 700; margin-top: 0.5vh; display: block; white-space: nowrap;">${saldoAwal}</strong>
                 </div>
                 <div style="display: flex; gap: 1.5vw; width: 100%;">
                     <div style="flex: 1; background: rgba(46, 204, 113, 0.1); border: 0.18vh solid rgba(46, 204, 113, 0.4); border-radius: 1vh; padding: 1.2vh; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-                        <span style="font-size: 2vh; color: #2ecc71; display: block; font-weight: 600; margin-bottom: 0.5vh;">Penerimaan</span>
-                        <strong style="font-size: 3.2vh; color: #ffffff; font-weight: 700; line-height: 1.2; display: block;">
-                            Rp<br>${totalPemasukan.toLocaleString('id-ID')}
-                        </strong>
+                        <span style="font-size: 1.9vh; color: #2ecc71; display: block; font-weight: 600; margin-bottom: 0.5vh;">Penerimaan</span>
+                        <strong style="font-size: 2.5vh; color: #ffffff; font-weight: 700; display: block; white-space: nowrap;">${"Rp " + totalPemasukan.toLocaleString('id-ID')}</strong>
                     </div>
                     <div style="flex: 1; background: rgba(231, 76, 60, 0.1); border: 0.18vh solid rgba(231, 76, 60, 0.4); border-radius: 1vh; padding: 1.2vh; text-align: center; display: flex; flex-direction: column; justify-content: center;">
-                        <span style="font-size: 2vh; color: #e74c3c; display: block; font-weight: 600; margin-bottom: 0.5vh;">Pengeluaran</span>
-                        <strong style="font-size: 3.2vh; color: #ffffff; font-weight: 700; line-height: 1.2; display: block;">
-                            Rp<br>${totalPengeluaran.toLocaleString('id-ID')}
-                        </strong>
+                        <span style="font-size: 1.9vh; color: #e74c3c; display: block; font-weight: 600; margin-bottom: 0.5vh;">Pengeluaran</span>
+                        <strong style="font-size: 2.5vh; color: #ffffff; font-weight: 700; display: block; white-space: nowrap;">${"Rp " + totalPengeluaran.toLocaleString('id-ID')}</strong>
                     </div>
                 </div>
                 <div style="background: linear-gradient(180deg, rgba(11,48,28,0.95) 0%, rgba(5,25,14,0.98) 100%); border: 0.25vh solid #e5c158; border-radius: 1.2vh; width: 100%; padding: 1.8vh; text-align: center;">
                     <span style="font-size: 2.2vh; color: #e5c158; display: block; font-weight: 600;">SALDO SEKARANG</span>
-                    <strong style="font-size: 5vh; color: #ffffff; font-weight: 800; margin-top: 0.5vh; display: block;">
-                        ${saldoAkhir.replace("Rp ", "Rp<br>")}
-                    </strong>
+                    <strong style="font-size: 4.5vh; color: #ffffff; font-weight: 800; margin-top: 0.5vh; display: block; white-space: nowrap;">${saldoAkhir}</strong>
                 </div>
             </div>
         `
